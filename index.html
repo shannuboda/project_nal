@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Triangle Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2, h3 {
+      color: #333;
+    }
+
+    .inputs label {
+      margin-right: 10px;
+    }
+
+    .inputs input {
+      margin-bottom: 10px;
+      padding: 5px;
+      width: 80px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+
+    .results p, .explanation p {
+      margin: 5px 0;
+      line-height: 1.5;
+    }
+
+    .results span {
+      font-weight: bold;
+    }
+
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .explanation {
+      margin-top: 20px;
+      background: #f9f9f9;
+      padding: 15px;
+      border-left: 4px solid #007bff;
+    }
+
+    @media (max-width: 600px) {
+      .inputs input {
+        width: 100%;
+        margin-bottom: 15px;
+      }
+      .inputs label, button {
+        display: block;
+        margin-bottom: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Dynamic Triangle Calculator</h1>
+
+    <div class="inputs">
+      <label>Side 1 (a):</label>
+      <input type="number" id="side1" step="0.01" placeholder="e.g. 12">
+      <label>Side 2 (b):</label>
+      <input type="number" id="side2" step="0.01" placeholder="e.g. 10">
+      <label>Side 3 (c):</label>
+      <input type="number" id="side3" step="0.01" placeholder="e.g. 11">
+    </div>
+
+    <div class="inputs">
+      <label>Angle A (∠A):</label>
+      <input type="number" id="angleA" step="0.01" placeholder="e.g. 60">
+      <label>Angle B (∠B):</label>
+      <input type="number" id="angleB" step="0.01" placeholder="e.g. 60">
+      <label>Angle C (∠C):</label>
+      <input type="number" id="angleC" step="0.01" placeholder="e.g. 60">
+    </div>
+
+    <button id="updateTriangle">Update Triangle</button>
+
+    <div class="results">
+      <h2>Results</h2>
+      <p>Type: <span id="triangleType"></span></p>
+      <p>Sides: <span id="sides"></span></p>
+      <p>Angles: <span id="angles"></span></p>
+      <p>Area: <span id="area"></span></p>
+    </div>
+
+    <div>
+      <h2>Triangle Visualization</h2>
+      <canvas id="triangleCanvas" width="500" height="400"></canvas>
+    </div>
+
+    <div class="explanation">
+      <h3>How It Works</h3>
+      <p><strong>1. Law of Sines:</strong> Used to calculate unknown sides or angles when at least one side and its opposite angle are known:</p>
+      <p>\(\frac{a}{\sin A} = \frac{b}{\sin B} = \frac{c}{\sin C}\)</p>
+
+      <p><strong>2. Law of Cosines:</strong> Used to calculate angles when all sides are known:</p>
+      <p>\(\cos A = \frac{b^2 + c^2 - a^2}{2bc}\)</p>
+
+      <p><strong>3. Area (Heron's Formula):</strong> Calculates the area when all three sides are known:</p>
+      <p>\(Area = \sqrt{s(s-a)(s-b)(s-c)}\), where \(s = \frac{a+b+c}{2}\)</p>
+
+      <p><strong>4. Triangle Type:</strong> Based on angles and sides:</p>
+      <ul>
+        <li><strong>Right-Angled:</strong> One angle = 90°.</li>
+        <li><strong>Equilateral:</strong> All sides and angles are equal.</li>
+        <li><strong>Isosceles:</strong> Two sides and two angles are equal.</li>
+        <li><strong>Scalene:</strong> All sides and angles are different.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const updateTriangle = () => {
+      let side1 = parseFloat(document.getElementById("side1").value);
+      let side2 = parseFloat(document.getElementById("side2").value);
+      let side3 = parseFloat(document.getElementById("side3").value);
+
+      let angleA = parseFloat(document.getElementById("angleA").value);
+      let angleB = parseFloat(document.getElementById("angleB").value);
+      let angleC = parseFloat(document.getElementById("angleC").value);
+
+      if (angleA && angleB && angleC) {
+        // Validate angles sum to 180
+        if (Math.abs(angleA + angleB + angleC - 180) > 1) {
+          alert("The sum of the angles must equal 180 degrees.");
+          return;
+        }
+
+        // Calculate sides using Law of Sines
+        if (side1) {
+          side2 = (side1 * Math.sin((angleB * Math.PI) / 180)) / Math.sin((angleA * Math.PI) / 180);
+          side3 = (side1 * Math.sin((angleC * Math.PI) / 180)) / Math.sin((angleA * Math.PI) / 180);
+        } else {
+          alert("Please provide at least one side length.");
+          return;
+        }
+
+        // Update side inputs
+        document.getElementById("side2").value = side2.toFixed(2);
+        document.getElementById("side3").value = side3.toFixed(2);
+      } else if (side1 && side2 && side3) {
+        // Calculate angles using Law of Cosines
+        angleA = (Math.acos((Math.pow(side2, 2) + Math.pow(side3, 2) - Math.pow(side1, 2)) / (2 * side2 * side3)) * 180) / Math.PI;
+        angleB = (Math.acos((Math.pow(side1, 2) + Math.pow(side3, 2) - Math.pow(side2, 2)) / (2 * side1 * side3)) * 180) / Math.PI;
+        angleC = 180 - angleA - angleB;
+
+        // Update angle inputs
+        document.getElementById("angleA").value = angleA.toFixed(2);
+        document.getElementById("angleB").value = angleB.toFixed(2);
+        document.getElementById("angleC").value = angleC.toFixed(2);
+      } else {
+        alert("Please enter valid sides or angles.");
+        return;
+      }
+
+      // Calculate area using Heron's formula
+      const s = (side1 + side2 + side3) / 2;
+      const area = Math.sqrt(s * (s - side1) * (s - side2) * (s - side3));
+
+      // Determine triangle type
+      let type = "Scalene";
+      if (Math.abs(angleA - 90) < 1 || Math.abs(angleB - 90) < 1 || Math.abs(angleC - 90) < 1) {
+        type = "Right-Angled";
+      } else if (side1 === side2 && side2 === side3) {
+        type = "Equilateral";
+      } else if (side1 === side2 || side2 === side3 || side1 === side3) {
+        type = "Isosceles";
+      }
+
+      // Update results
+      document.getElementById("triangleType").innerText = type;
+      document.getElementById("sides").innerText = `Side 1: ${side1.toFixed(2)}, Side 2: ${side2.toFixed(2)}, Side 3: ${side3.toFixed(2)}`;
+      document.getElementById("angles").innerText = `Angle A: ${angleA.toFixed(2)}, Angle B: ${angleB.toFixed(2)}, Angle C: ${angleC.toFixed(2)}`;
+      document.getElementById("area").innerText = area.toFixed(2);
+
+      drawTriangle(side1, side2, side3);
+    };
+
+    const drawTriangle = (side1, side2, side3) => {
+      const canvas = document.getElementById("triangleCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const scale = 10;
+      const base = side3 * scale;
+      const height = Math.sqrt(Math.pow(side2 * scale, 2) - Math.pow(base / 2, 2));
+
+      ctx.beginPath();
+      ctx.moveTo(50, 300);
+      ctx.lineTo(50 + base, 300);
+      ctx.lineTo(50 + base / 2, 300 - height);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.fillStyle = "orange";
+      ctx.fill();
+    };
+
+    document.getElementById("updateTriangle").addEventListener("click", updateTriangle);
+  </script>
+</body>
+</html>
