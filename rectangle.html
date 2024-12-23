@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Rectangle Operations</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    canvas {
+      border: 1px solid #000;
+      margin: 20px 0;
+    }
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .controls input, .controls button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    .values {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .values label {
+      margin: 5px;
+    }
+    #info {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Interactive Rectangle Operations</h1>
+  <div class="controls">
+    <div class="values">
+      <label>
+        Length: <input type="number" id="length" value="150" min="1">
+      </label>
+      <label>
+        Width: <input type="number" id="width" value="100" min="1">
+      </label>
+      <label>
+        X: <input type="number" id="x" value="200" min="0">
+      </label>
+      <label>
+        Y: <input type="number" id="y" value="150" min="0">
+      </label>
+      <label>
+        Angle: <input type="number" id="angle" value="0" min="0">
+      </label>
+    </div>
+    <button id="calculate">Calculate and Draw</button>
+    <button id="scale">Scale</button>
+    <button id="rotate">Rotate</button>
+    <button id="translate">Translate</button>
+    <button id="clear">Clear</button>
+  </div>
+  <canvas id="canvas" width="800" height="600"></canvas>
+  <div id="info"></div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const info = document.getElementById('info');
+
+    // Get inputs
+    const lengthInput = document.getElementById('length');
+    const widthInput = document.getElementById('width');
+    const xInput = document.getElementById('x');
+    const yInput = document.getElementById('y');
+    const angleInput = document.getElementById('angle');
+
+    let rectangle = {
+      x: parseInt(xInput.value),
+      y: parseInt(yInput.value),
+      width: parseInt(widthInput.value),
+      height: parseInt(lengthInput.value),
+      angle: parseInt(angleInput.value),
+    };
+
+    // Utility to draw a rectangle with transformations
+    function drawRectangle(rect) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(rect.x + rect.width / 2, rect.y + rect.height / 2);
+      ctx.rotate((rect.angle * Math.PI) / 180);
+      ctx.translate(-rect.width / 2, -rect.height / 2);
+      ctx.fillStyle = 'rgba(0, 128, 255, 0.5)';
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      ctx.restore();
+
+      displayProperties(rect);
+    }
+
+    // Display rectangle properties
+    function displayProperties(rect) {
+      const diagonal = Math.sqrt(rect.width ** 2 + rect.height ** 2).toFixed(2);
+      const area = (rect.width * rect.height).toFixed(2);
+      const perimeter = (2 * (rect.width + rect.height)).toFixed(2);
+      const aspectRatio = (rect.width / rect.height).toFixed(2);
+
+      info.innerHTML = `
+        <strong>Rectangle Properties:</strong>
+        <ul>
+          <li>Width: ${rect.width}px</li>
+          <li>Height: ${rect.height}px</li>
+          <li>Area: ${area}px²</li>
+          <li>Perimeter: ${perimeter}px</li>
+          <li>Diagonal: ${diagonal}px</li>
+          <li>Aspect Ratio: ${aspectRatio}</li>
+        </ul>
+      `;
+    }
+
+    // Update rectangle values from inputs
+    function updateRectangle() {
+      rectangle = {
+        x: parseInt(xInput.value),
+        y: parseInt(yInput.value),
+        width: parseInt(widthInput.value),
+        height: parseInt(lengthInput.value),
+        angle: parseInt(angleInput.value),
+      };
+      drawRectangle(rectangle);
+    }
+
+    // Button actions
+    document.getElementById('calculate').addEventListener('click', updateRectangle);
+
+    document.getElementById('scale').addEventListener('click', () => {
+      rectangle.width *= 1.2;
+      rectangle.height *= 1.2;
+      drawRectangle(rectangle);
+    });
+
+    document.getElementById('rotate').addEventListener('click', () => {
+      rectangle.angle += 15;
+      drawRectangle(rectangle);
+    });
+
+    document.getElementById('translate').addEventListener('click', () => {
+      rectangle.x += 20;
+      rectangle.y += 20;
+      drawRectangle(rectangle);
+    });
+
+    document.getElementById('clear').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      info.innerHTML = '';
+    });
+
+    // Initial draw
+    drawRectangle(rectangle);
+  </script>
+</body>
+</html>
